@@ -4,63 +4,116 @@
   <meta charset="UTF-8" />
   <title>Register</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial;
-      background: #f2f2f2;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .form-box {
-      background: #f1eded;
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px;
-      border-radius: 10px;
+      border-radius: 15px;
       width: 350px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      max-width: 90%;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 1s ease-in;
     }
 
-    input, select {
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input, select, button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       margin-bottom: 15px;
-      border: 1px solid #c21313;
       border-radius: 5px;
+      font-size: 1rem;
+      transition: border 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input, select {
+      border: 1px solid #ccc;
+      background-color: #fff;
+      color: #333;
+    }
+
+    input:focus, select:focus {
+      border-color: #6a11cb;
+      box-shadow: 0 0 5px rgba(106, 17, 203, 0.4);
+      outline: none;
     }
 
     button {
-      width: 100%;
-      background: #28a745;
+      background: #6a11cb;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
       color: white;
       border: none;
-      padding: 10px;
-      border-radius: 5px;
       cursor: pointer;
-    }
-    .ge{
-        width: 100%;
     }
 
     button:hover {
-      background: #218838;
+      background: linear-gradient(to right, #2575fc, #6a11cb);
     }
 
     #message {
       color: red;
       text-align: center;
       margin-top: 10px;
+      transition: color 0.3s ease;
+    }
+
+    a {
+      color: #6a11cb;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    a:hover {
+      color: #2575fc;
+    }
+
+    @media (max-width: 500px) {
+      .form-box {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.4rem;
+      }
+
+      input, select, button {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-
   <div class="form-box">
     <h2>Register</h2>
     <input type="text" id="name" placeholder="Name with initial" required />
     <input type="email" id="email" placeholder="Email" required />
-    <select id="gender",class="ge">
+    <select id="gender">
       <option value="">Select Gender</option>
       <option value="Male">Male</option>
       <option value="Female">Female</option>
@@ -87,63 +140,66 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
+    const database = firebase.database();
 
-  function register() {
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const gender = document.getElementById("gender").value;
-    const password = document.getElementById("password").value.trim();
-    const repassword = document.getElementById("repassword").value.trim();
-    const message = document.getElementById("message");
+    function register() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const gender = document.getElementById("gender").value;
+      const password = document.getElementById("password").value.trim();
+      const repassword = document.getElementById("repassword").value.trim();
+      const message = document.getElementById("message");
 
-    if (!name || !email || !gender || !password || !repassword) {
-      message.textContent = "Please fill all fields.";
-      return;
-    }
-
-    if (password !== repassword) {
-      message.textContent = "Passwords do not match.";
-      return;
-    }
-
-    // Sanitize name for Firebase key
-    const safeName = name.replace(/\s+/g, "_");
-
-    // Check for existing email
-    database.ref("users").once("value", snapshot => {
-      const users = snapshot.val();
-      let emailExists = false;
-
-      for (let key in users) {
-        if (users[key].email === email) {
-          emailExists = true;
-          break;
-        }
+      if (!name || !email || !gender || !password || !repassword) {
+        message.style.color = "red";
+        message.textContent = "Please fill all fields.";
+        return;
       }
 
-      if (emailExists) {
-        message.textContent = "Email already exists!";
-      } else {
-        const userData = {
-          name,
-          email,
-          gender,
-          password
-        };
+      if (password !== repassword) {
+        message.style.color = "red";
+        message.textContent = "Passwords do not match.";
+        return;
+      }
 
-        database.ref("users/" + safeName).set(userData, error => {
-          if (error) {
-            message.textContent = "Error saving data.";
-          } else {
-            message.style.color = "green";
-            message.textContent = "Registered successfully!";
-            setTimeout(() => window.location.href = "login.html", 1000);
+      const safeName = name.replace(/\s+/g, "_");
+
+      database.ref("users").once("value", snapshot => {
+        const users = snapshot.val();
+        let emailExists = false;
+
+        for (let key in users) {
+          if (users[key].email === email) {
+            emailExists = true;
+            break;
           }
-        });
-      }
-    });
-  }
+        }
+
+        if (emailExists) {
+          message.style.color = "red";
+          message.textContent = "Email already exists!";
+        } else {
+          const userData = {
+            name,
+            email,
+            gender,
+            password
+          };
+
+          database.ref("users/" + safeName).set(userData, error => {
+            if (error) {
+              message.style.color = "red";
+              message.textContent = "Error saving data.";
+            } else {
+              message.style.color = "green";
+              message.textContent = "Registered successfully!";
+              sessionStorage.setItem("userName", name);
+              setTimeout(() => window.location.href = "login.html", 1000);
+            }
+          });
+        }
+      });
+    }
   </script>
 </body>
 </html>
