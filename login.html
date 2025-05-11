@@ -4,67 +4,118 @@
   <meta charset="UTF-8" />
   <title>Login</title>
   <style>
+    /* Same styles as before */
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial;
-      background: #f2f2f2;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .form-box {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px;
-      border-radius: 10px;
+      border-radius: 15px;
       width: 350px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 90%;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 1s ease-in;
     }
 
-    input {
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input, button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       margin-bottom: 15px;
-      border: 1px solid #ccc;
       border-radius: 5px;
+      font-size: 1rem;
+      transition: border 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input {
+      border: 1px solid #ccc;
+      background-color: #fff;
+      color: #333;
+    }
+
+    input:focus {
+      border-color: #6a11cb;
+      box-shadow: 0 0 5px rgba(106, 17, 203, 0.4);
+      outline: none;
     }
 
     button {
-      width: 100%;
-      background: #007bff;
+      background: #6a11cb;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
       color: white;
       border: none;
-      padding: 10px;
-      border-radius: 5px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #0056b3;
+      background: linear-gradient(to right, #2575fc, #6a11cb);
     }
 
     #message {
       color: red;
       text-align: center;
       margin-top: 10px;
+      transition: color 0.3s ease;
     }
 
     a {
-      color: #007bff;
+      color: #6a11cb;
       text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    a:hover {
+      color: #2575fc;
+    }
+
+    @media (max-width: 500px) {
+      .form-box {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.4rem;
+      }
+
+      input, button {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-
   <div class="form-box">
     <h2>Login</h2>
-    <input type="text" id="identifier" placeholder="Email or Name" required />
+    <input type="text" id="name" placeholder="Name" required />
     <input type="password" id="password" placeholder="Password" required />
     <button onclick="login()">Login</button>
     <p id="message"></p>
-    <p style="text-align:center;"><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
     <p style="text-align:center;">Don't have an account? <a href="index.html">Register</a></p>
   </div>
 
@@ -82,37 +133,43 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const database = firebase.database();
 
     function login() {
-      const identifier = document.getElementById("identifier").value.trim();
-      const password = document.getElementById("password").value;
+      const name = document.getElementById("name").value.trim();
+      const password = document.getElementById("password").value.trim();
       const message = document.getElementById("message");
 
-      db.ref("users").once("value", snapshot => {
+      if (!name || !password) {
+        message.style.color = "red";
+        message.textContent = "Please enter both fields.";
+        return;
+      }
+
+      database.ref("users").once("value", snapshot => {
         const users = snapshot.val();
-        let success = false;
+        let found = false;
 
         for (let key in users) {
-          if ((users[key].email === identifier || users[key].name === identifier) && users[key].password === password) {
-            success = true;
+          if (users[key].name === name && users[key].password === password) {
+            found = true;
+
+            sessionStorage.setItem("userName", users[key].name);
             break;
           }
         }
 
-        if (success) {
+        if (found) {
           message.style.color = "green";
           message.textContent = "Login successful!";
-          // Redirect: window.location.href = "dashboard.html";
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
         } else {
           message.style.color = "red";
-          message.textContent = "Invalid credentials.";
+          message.textContent = "Invalid name or password.";
         }
       });
-    }
-
-    function forgotPassword() {
-      alert("Forgot password feature coming soon.");
     }
   </script>
 </body>
