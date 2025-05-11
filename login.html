@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #message {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-box">
+    <h2>Login</h2>
+    <input type="text" id="identifier" placeholder="Email or Name" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button onclick="login()">Login</button>
+    <p id="message"></p>
+    <p style="text-align:center;"><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
+    <p style="text-align:center;">Don't have an account? <a href="index.html">Register</a></p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAblRT45oQymggFRvZDoDEB1zLwvzPXksg",
+      authDomain: "login-1cc98.firebaseapp.com",
+      databaseURL: "https://login-1cc98-default-rtdb.firebaseio.com",
+      projectId: "login-1cc98",
+      storageBucket: "login-1cc98.appspot.com",
+      messagingSenderId: "528784158906",
+      appId: "1:528784158906:web:6e6bd46d42c52852cd1283"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function login() {
+      const identifier = document.getElementById("identifier").value.trim();
+      const password = document.getElementById("password").value;
+      const message = document.getElementById("message");
+
+      db.ref("users").once("value", snapshot => {
+        const users = snapshot.val();
+        let success = false;
+
+        for (let key in users) {
+          if ((users[key].email === identifier || users[key].name === identifier) && users[key].password === password) {
+            success = true;
+            break;
+          }
+        }
+
+        if (success) {
+          message.style.color = "green";
+          message.textContent = "Login successful!";
+          // Redirect: window.location.href = "dashboard.html";
+        } else {
+          message.style.color = "red";
+          message.textContent = "Invalid credentials.";
+        }
+      });
+    }
+
+    function forgotPassword() {
+      alert("Forgot password feature coming soon.");
+    }
+  </script>
+</body>
+</html>
