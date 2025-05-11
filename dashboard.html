@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+
+    .dashboard-container {
+      background-color: white;
+      margin-top: 50px;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 900px;
+      text-align: center;
+    }
+
+    .dashboard-container h1 {
+      color: #00796b;
+      margin-bottom: 10px;
+    }
+
+    #user-name {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    .images-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .image-card {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .image-card img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #333;
+      margin-top: 5px;
+    }
+
+    .btn {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #004d40;
+    }
+
+    .logout-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background-color: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    <h1>Dashboard</h1>
+    <p id="user-name">Hello, </p>
+
+    <div class="images-container" id="images-container">
+      <!-- Images will be dynamically loaded here -->
+    </div>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    // Displaying user info from session storage
+    const userName = sessionStorage.getItem("userName");
+    document.getElementById("user-name").textContent = `Hello, ${userName}`;
+
+    // Function to logout
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    // Fetch 5 random images from Picsum API
+    async function fetchImages() {
+      const container = document.getElementById("images-container");
+      for (let i = 0; i < 5; i++) {
+        const imgUrl = `https://picsum.photos/300?random=${i}`;
+        const description = `Random Image ${i + 1}`;
+
+        const card = document.createElement("div");
+        card.classList.add("image-card");
+
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="Random Image ${i + 1}">
+          <p class="description">${description}</p>
+          <button class="btn" onclick="downloadImage('${imgUrl}')">Download</button>
+        `;
+
+        container.appendChild(card);
+      }
+    }
+
+    // Download image function
+    function downloadImage(url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = url.split("/").pop();
+      link.click();
+    }
+
+    // Load images when the page loads
+    fetchImages();
+  </script>
+
+</body>
+</html>
