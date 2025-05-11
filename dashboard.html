@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <title>Dashboard</title>
   <style>
     body {
@@ -90,6 +92,22 @@
     .logout-btn:hover {
       background-color: #b71c1c;
     }
+    @media (max-width: 600px) {
+  .dashboard-container {
+    padding: 15px;
+    margin-top: 20px;
+  }
+
+  .description {
+    font-size: 12px;
+  }
+
+  .btn, .logout-btn {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+}
+
   </style>
 </head>
 <body>
